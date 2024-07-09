@@ -1,0 +1,99 @@
+name: 'Create ArgoCD application'
+description: 'Create ArgoCD Application using cli'
+inputs:
+  name:
+    required: true
+    description: 'Application name'
+  token:
+    description: 'ArgoCD access token'
+    required: true
+  server:
+    description: 'ArgoCD server'
+    required: true
+  appNamespace:
+    required: false
+    description: 'Namespace to deploy application'
+    default: argocd
+  namespace:
+    required: true
+    description: 'Namespace to create resources'
+  releaseName:
+    required: false
+    description: 'Helm release name'
+    default: ''
+  repo:
+    required: true
+    description: 'Helm chart repository'
+  revision:
+    required: true
+    description: 'Helm chart repository revision | Chart version'
+  path:
+    required: false
+    description: 'Path in repository to the app directory'
+  chart:
+    required: false
+    description: 'Helm chart to deploy'
+  values:
+    required: false
+    description: 'Helm values'
+  ttl:
+    required: true
+    description: "K8s Janitor TTL"
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install ArgoCD cli
+      shell: bash
+      run: |
+        if [ -z $(which argocd || true) ]; then
+          mkdir -p /home/runner/.local/bin/
+          curl -o /home/runner/.local/bin/argocd https://artifactory.infra.us-east-1.conductor.sh/artifactory/thirdparty/argocd/v2.11.3/argocd-linux-amd64
+          chmod +x /home/runner/.local/bin/argocd
+        fi
+
+    - name: cli parameters
+      id: chart
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.chart }}" ]; then
+          echo "chart=--path ${{ inputs.path }}" >> $GITHUB_OUTPUT
+        else
+          echo "chart=--chart ${{ inputs.chart }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Application
+      shell: bash
+      run: |
+        cat <<EOT > "values-literal-file.yaml"
+        ${{ inputs.values }}
+        EOT
+        cat "values-literal-file.yaml"
+
+        echo "Creating application:"
+
+        argocd app create "${{ inputs.name }}" \
+          --auth-token '${{ inputs.token }}' \
+          --server '${{ inputs.server }}' \
+          --insecure \
+          --grpc-web \
+          --annotations 'janitor/ttl=${{ inputs.ttl }}' \
+          --app-namespace ${{ inputs.appNamespace }} \
+          --dest-server https://kubernetes.default.svc \
+          --repo ${{ inputs.repo }} \
+          --revision ${{ inputs.revision }} \
+          ${{ steps.cli.outputs.chart }} \
+          --sync-policy automated \
+          --self-heal \
+          --set-finalizer \
+          --sync-option "Prune=true" \
+          --dest-namespace "${{ inputs.namespace }}" \
+          --release-name "${{ inputs.releaseName }}" \
+          --values-literal-file values-literal-file.yaml
+
+        argocd app wait "${{ inputs.name }}" --timeout ${{ inputs.wait }} \
+          --auth-token '${{ inputs.token }}' \
+          --server '${{ inputs.server }}' \
+          --insecure \
+          --grpc-web
