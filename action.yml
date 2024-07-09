@@ -59,7 +59,7 @@ runs:
         fi
 
     - name: cli parameters
-      id: chart
+      id: cli
       shell: bash
       run: |
         if [ -z "${{ inputs.chart }}" ]; then
