@@ -78,9 +78,9 @@ runs:
 
         echo "Creating application:"
 
-        argocd app create "${{ inputs.name }}" \
+        argocd app create ${{ inputs.name }} \
           --auth-token '${{ inputs.token }}' \
-          --server '${{ inputs.server }}' \
+          --server ${{ inputs.server }} \
           --insecure \
           --grpc-web \
           --annotations 'janitor/ttl=${{ inputs.ttl }}' \
@@ -93,12 +93,12 @@ runs:
           --self-heal \
           --set-finalizer \
           --sync-option "Prune=true" \
-          --dest-namespace "${{ inputs.namespace }}" \
-          --release-name "${{ inputs.releaseName }}" \
+          --dest-namespace ${{ inputs.namespace }} \
+          --release-name ${{ inputs.releaseName }} \
           --values-literal-file values-literal-file.yaml
 
-        argocd app wait "${{ inputs.name }}" --timeout ${{ inputs.wait }} \
+        argocd app wait ${{ inputs.name }} --timeout ${{ inputs.wait }} \
           --auth-token '${{ inputs.token }}' \
-          --server '${{ inputs.server }}' \
+          --server ${{ inputs.server }} \
           --insecure \
           --grpc-web
