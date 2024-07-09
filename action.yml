@@ -9,7 +9,8 @@ inputs:
     required: true
   server:
     description: 'ArgoCD server'
-    required: true
+    required: false
+    default: argocd.dev.us-east-1.cond
   appNamespace:
     required: false
     description: 'Namespace to deploy application'
@@ -39,6 +40,10 @@ inputs:
   ttl:
     required: true
     description: "K8s Janitor TTL"
+  wait:
+    required: false
+    description: "Wait timeout in seconds"
+    default: "1200"
 
 
 runs:
