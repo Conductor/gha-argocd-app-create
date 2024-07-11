@@ -79,6 +79,7 @@ runs:
         echo "Creating application:"
 
         argocd app create ${{ inputs.name }} \
+          --upsert \
           --auth-token '${{ inputs.token }}' \
           --server ${{ inputs.server }} \
           --insecure \
