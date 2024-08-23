@@ -22,6 +22,10 @@ inputs:
     required: false
     description: 'Helm release name'
     default: ''
+  label:
+    required: false
+    description: 'Application label'
+    default: 'purpose=qa'
   repo:
     required: true
     description: 'Helm chart repository'
@@ -85,6 +89,7 @@ runs:
           --insecure \
           --grpc-web \
           --annotations 'janitor/ttl=${{ inputs.ttl }}' \
+          --label '${{ inputs.label }}' \
           --app-namespace ${{ inputs.appNamespace }} \
           --dest-server https://kubernetes.default.svc \
           --repo ${{ inputs.repo }} \
