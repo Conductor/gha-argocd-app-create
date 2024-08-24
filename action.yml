@@ -99,6 +99,7 @@ runs:
           --self-heal \
           --set-finalizer \
           --sync-option "Prune=true" \
+          --sync-option "Replace=true" \
           --dest-namespace ${{ inputs.namespace }} \
           --release-name ${{ inputs.releaseName }} \
           --values-literal-file values-literal-file.yaml
