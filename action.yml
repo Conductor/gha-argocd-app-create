@@ -69,7 +69,7 @@ runs:
         if [ -z "${{ inputs.chart }}" ]; then
           echo "chart=--path ${{ inputs.path }}" >> $GITHUB_OUTPUT
         else
-          echo "chart=--chart ${{ inputs.chart }}" >> $GITHUB_OUTPUT
+          echo "chart=--helm-chart ${{ inputs.chart }}" >> $GITHUB_OUTPUT
         fi
 
     - name: Create Application
