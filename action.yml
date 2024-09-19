@@ -48,6 +48,10 @@ inputs:
     required: false
     description: "Wait timeout in seconds"
     default: "1200"
+  syncOptions:
+    required: false
+    description: "sync-policy automated and self-heal"
+    default: '--sync-policy automated --self-heal --set-finalizer --sync-option "Prune=true" --sync-option "Replace=true"'
 
 
 runs:
@@ -94,12 +98,7 @@ runs:
           --dest-server https://kubernetes.default.svc \
           --repo ${{ inputs.repo }} \
           --revision ${{ inputs.revision }} \
-          ${{ steps.cli.outputs.chart }} \
-          --sync-policy automated \
-          --self-heal \
-          --set-finalizer \
-          --sync-option "Prune=true" \
-          --sync-option "Replace=true" \
+          ${{ steps.cli.outputs.chart }} ${{ inputs.syncOptions }} \
           --dest-namespace ${{ inputs.namespace }} \
           --release-name ${{ inputs.releaseName }} \
           --values-literal-file values-literal-file.yaml
