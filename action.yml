@@ -52,7 +52,6 @@ inputs:
 
 runs:
   using: "composite"
-  timeout-seconds: ${{ inputs.wait }}
   steps:
     - name: Install ArgoCD cli
       shell: bash
@@ -108,13 +107,14 @@ runs:
     - name: Wait for App is synced and ready
       shell: bash
       run: |
-        EXIT_CODE=20
-        while [[ ${EXIT_CODE} -ne 0 ]];
-        do
-          argocd app wait ${{ inputs.name }} --timeout 30 \
-            --auth-token '${{ inputs.token }}' \
-            --server ${{ inputs.server }} \
-            --insecure \
-            --grpc-web
-          EXIT_CODE=$?
-        done
+        timeout ${{ inputs.wait }}s bash -c '
+          EXIT_CODE=20
+          while [[ ${EXIT_CODE} -ne 0 ]];
+          do
+            argocd app wait ${{ inputs.name }} --timeout 30 \
+              --auth-token '${{ inputs.token }}' \
+              --server ${{ inputs.server }} \
+              --insecure \
+              --grpc-web
+            EXIT_CODE=$?
+          done'
