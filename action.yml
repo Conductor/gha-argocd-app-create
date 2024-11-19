@@ -52,6 +52,7 @@ inputs:
 
 runs:
   using: "composite"
+  timeout-seconds: ${{ inputs.wait }}
   steps:
     - name: Install ArgoCD cli
       shell: bash
@@ -106,7 +107,6 @@ runs:
 
     - name: Wait for App is synced and ready
       shell: bash
-      timeout-seconds: ${{ inputs.wait }}
       run: |
         EXIT_CODE=20
         while [[ ${EXIT_CODE} -ne 0 ]];
