@@ -111,7 +111,7 @@ runs:
           EXIT_CODE=20
           while [[ ${EXIT_CODE} -ne 0 ]];
           do
-            argocd app wait ${{ inputs.name }} --timeout 30 \
+            argocd app wait ${{ inputs.name }} --timeout ${{ inputs.wait }} \
               --auth-token '${{ inputs.token }}' \
               --server ${{ inputs.server }} \
               --insecure \
