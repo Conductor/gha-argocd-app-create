@@ -104,8 +104,17 @@ runs:
           --release-name ${{ inputs.releaseName }} \
           --values-literal-file values-literal-file.yaml
 
-        argocd app wait ${{ inputs.name }} --timeout ${{ inputs.wait }} \
-          --auth-token '${{ inputs.token }}' \
-          --server ${{ inputs.server }} \
-          --insecure \
-          --grpc-web
+    - name: Wait for App is synced and ready
+      shell: bash
+      run: |
+        timeout ${{ inputs.wait }}s bash -c '
+          EXIT_CODE=20
+          while [[ ${EXIT_CODE} -ne 0 ]];
+          do
+            argocd app wait ${{ inputs.name }} --timeout ${{ inputs.wait }} \
+              --auth-token '${{ inputs.token }}' \
+              --server ${{ inputs.server }} \
+              --insecure \
+              --grpc-web
+            EXIT_CODE=$?
+          done'
